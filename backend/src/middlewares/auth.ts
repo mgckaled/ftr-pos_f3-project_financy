@@ -1,9 +1,14 @@
 import jwt from "jsonwebtoken";
 import { GraphQLError } from "graphql";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
-export interface GraphQLContext {
+export interface AppContext {
   userId?: string;
   email?: string;
+}
+
+declare module "mercurius" {
+  interface MercuriusContext extends AppContext {}
 }
 
 interface JwtUserPayload {
@@ -11,9 +16,10 @@ interface JwtUserPayload {
   email: string;
 }
 
-export function getContextFromRequest(req: {
-  headers: { authorization?: string };
-}): GraphQLContext {
+export async function buildContext(
+  req: FastifyRequest,
+  _reply: FastifyReply
+): Promise<AppContext> {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
@@ -40,8 +46,8 @@ export function getContextFromRequest(req: {
 }
 
 export function requireAuth(
-  context: GraphQLContext
-): asserts context is Required<GraphQLContext> {
+  context: AppContext
+): asserts context is Required<AppContext> {
   if (!context.userId) {
     throw new GraphQLError("Não autorizado: faça login para continuar", {
       extensions: {
