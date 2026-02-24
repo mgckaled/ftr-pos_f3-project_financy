@@ -1,57 +1,58 @@
 import { GraphQLError } from "graphql";
+import type { MercuriusContext } from "mercurius";
 import { prisma } from "../../lib/prisma.js";
-import { requireAuth, type GraphQLContext } from "../../middlewares/auth.js";
+import { requireAuth } from "../../middlewares/auth.js";
 
 export const categoriesResolvers = {
   Query: {
     categories: async (
-      _parent: unknown,
+      root: unknown,
       _args: unknown,
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       return prisma.category.findMany({
-        where: { userId: context.userId },
+        where: { userId: ctx.userId },
         orderBy: { createdAt: "desc" },
       });
     },
 
     category: async (
-      _parent: unknown,
+      root: unknown,
       args: { id: string },
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       return prisma.category.findFirst({
-        where: { id: args.id, userId: context.userId },
+        where: { id: args.id, userId: ctx.userId },
       });
     },
   },
 
   Mutation: {
     createCategory: async (
-      _parent: unknown,
+      root: unknown,
       args: { input: { name: string } },
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       return prisma.category.create({
-        data: { name: args.input.name, userId: context.userId },
+        data: { name: args.input.name, userId: ctx.userId },
       });
     },
 
     updateCategory: async (
-      _parent: unknown,
+      root: unknown,
       args: { id: string; input: { name: string } },
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       const existing = await prisma.category.findFirst({
-        where: { id: args.id, userId: context.userId },
+        where: { id: args.id, userId: ctx.userId },
       });
 
       if (!existing) {
@@ -67,14 +68,14 @@ export const categoriesResolvers = {
     },
 
     deleteCategory: async (
-      _parent: unknown,
+      root: unknown,
       args: { id: string },
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       const existing = await prisma.category.findFirst({
-        where: { id: args.id, userId: context.userId },
+        where: { id: args.id, userId: ctx.userId },
       });
 
       if (!existing) {

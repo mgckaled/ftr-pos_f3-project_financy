@@ -1,6 +1,7 @@
 import { GraphQLError } from "graphql";
+import type { MercuriusContext } from "mercurius";
 import { prisma } from "../../lib/prisma.js";
-import { requireAuth, type GraphQLContext } from "../../middlewares/auth.js";
+import { requireAuth } from "../../middlewares/auth.js";
 
 interface CreateTransactionInput {
   title: string;
@@ -27,43 +28,43 @@ function assertValidType(type: string): void {
 export const transactionsResolvers = {
   Query: {
     transactions: async (
-      _parent: unknown,
+      root: unknown,
       _args: unknown,
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       return prisma.transaction.findMany({
-        where: { userId: context.userId },
+        where: { userId: ctx.userId },
         orderBy: { createdAt: "desc" },
       });
     },
 
     transaction: async (
-      _parent: unknown,
+      root: unknown,
       args: { id: string },
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       return prisma.transaction.findFirst({
-        where: { id: args.id, userId: context.userId },
+        where: { id: args.id, userId: ctx.userId },
       });
     },
   },
 
   Mutation: {
     createTransaction: async (
-      _parent: unknown,
+      root: unknown,
       args: { input: CreateTransactionInput },
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       assertValidType(args.input.type);
 
       const category = await prisma.category.findFirst({
-        where: { id: args.input.categoryId, userId: context.userId },
+        where: { id: args.input.categoryId, userId: ctx.userId },
       });
 
       if (!category) {
@@ -78,20 +79,20 @@ export const transactionsResolvers = {
           amount: args.input.amount,
           type: args.input.type,
           categoryId: args.input.categoryId,
-          userId: context.userId,
+          userId: ctx.userId,
         },
       });
     },
 
     updateTransaction: async (
-      _parent: unknown,
+      root: unknown,
       args: { id: string; input: UpdateTransactionInput },
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       const existing = await prisma.transaction.findFirst({
-        where: { id: args.id, userId: context.userId },
+        where: { id: args.id, userId: ctx.userId },
       });
 
       if (!existing) {
@@ -106,7 +107,7 @@ export const transactionsResolvers = {
 
       if (args.input.categoryId !== undefined) {
         const category = await prisma.category.findFirst({
-          where: { id: args.input.categoryId, userId: context.userId },
+          where: { id: args.input.categoryId, userId: ctx.userId },
         });
 
         if (!category) {
@@ -128,14 +129,14 @@ export const transactionsResolvers = {
     },
 
     deleteTransaction: async (
-      _parent: unknown,
+      root: unknown,
       args: { id: string },
-      context: GraphQLContext
+      ctx: MercuriusContext
     ) => {
-      requireAuth(context);
+      requireAuth(ctx);
 
       const existing = await prisma.transaction.findFirst({
-        where: { id: args.id, userId: context.userId },
+        where: { id: args.id, userId: ctx.userId },
       });
 
       if (!existing) {

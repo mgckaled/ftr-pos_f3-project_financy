@@ -1,13 +1,13 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { GraphQLError } from "graphql";
+import type { MercuriusContext } from "mercurius";
 import { prisma } from "../../lib/prisma.js";
-import type { GraphQLContext } from "../../middlewares/auth.js";
 
 export const authResolvers = {
   Mutation: {
     register: async (
-      _parent: unknown,
+      root: unknown,
       args: { name: string; email: string; password: string }
     ) => {
       const existing = await prisma.user.findUnique({
@@ -49,9 +49,9 @@ export const authResolvers = {
     },
 
     login: async (
-      _parent: unknown,
+      root: unknown,
       args: { email: string; password: string },
-      _context: GraphQLContext
+      _ctx: MercuriusContext
     ) => {
       const user = await prisma.user.findUnique({
         where: { email: args.email },
