@@ -1,13 +1,16 @@
 import { type ButtonHTMLAttributes, type ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "default" | "destructive";
-  children: ReactNode;
+  icon?: LucideIcon;
+  children?: ReactNode;
 }
 
 export function IconButton({
   variant = "default",
+  icon: Icon,
   className,
   children,
   disabled,
@@ -26,7 +29,7 @@ export function IconButton({
       )}
       {...props}
     >
-      {children}
+      {Icon ? <Icon className="h-4 w-4" /> : children}
     </button>
   );
 }
