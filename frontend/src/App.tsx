@@ -1,3 +1,5 @@
+import { AppRouter } from "@/router";
+
 export default function App() {
-  return <div>Financy</div>;
+  return <AppRouter />;
 }
