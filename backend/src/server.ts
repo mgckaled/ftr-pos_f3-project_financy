@@ -14,6 +14,12 @@ const schema = [authTypeDefs, categoriesTypeDefs, transactionsTypeDefs].join(
   "\n"
 );
 
+function toISO(value: unknown): string {
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === "number") return new Date(value).toISOString();
+  return String(value);
+}
+
 const resolvers = {
   Query: {
     ...categoriesResolvers.Query,
@@ -23,6 +29,15 @@ const resolvers = {
     ...authResolvers.Mutation,
     ...categoriesResolvers.Mutation,
     ...transactionsResolvers.Mutation,
+  },
+  User: {
+    createdAt: (parent: { createdAt: unknown }) => toISO(parent.createdAt),
+  },
+  Category: {
+    createdAt: (parent: { createdAt: unknown }) => toISO(parent.createdAt),
+  },
+  Transaction: {
+    createdAt: (parent: { createdAt: unknown }) => toISO(parent.createdAt),
   },
 };
 
