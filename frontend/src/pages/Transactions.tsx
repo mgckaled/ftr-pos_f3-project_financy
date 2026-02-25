@@ -80,11 +80,17 @@ export default function Transactions() {
     refetchQueries: [GET_TRANSACTIONS],
   });
 
-  const transactions = txData?.transactions ?? [];
-  const categories = catData?.categories ?? [];
+  const transactions = useMemo(() => txData?.transactions ?? [], [txData]);
+  const categories = useMemo(() => catData?.categories ?? [], [catData]);
 
-  const categoryMap = new Map<string, Category>(categories.map((c) => [c.id, c]));
-  const categoryIndexMap = new Map<string, number>(categories.map((c, i) => [c.id, i]));
+  const categoryMap = useMemo(
+    () => new Map<string, Category>(categories.map((c) => [c.id, c])),
+    [categories]
+  );
+  const categoryIndexMap = useMemo(
+    () => new Map<string, number>(categories.map((c, i) => [c.id, i])),
+    [categories]
+  );
 
   // Filtros aplicados
   const filtered = useMemo(() => {

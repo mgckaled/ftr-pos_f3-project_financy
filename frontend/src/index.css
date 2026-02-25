@@ -159,4 +159,12 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  button,
+  [role="button"],
+  label[for],
+  select,
+  [type="checkbox"],
+  [type="radio"] {
+    cursor: pointer;
+  }
 }

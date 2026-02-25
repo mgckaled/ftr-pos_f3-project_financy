@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client/react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -18,7 +18,12 @@ import type { Category, Transaction } from "@/graphql/types"
 const transactionSchema = z.object({
   title: z.string().min(1, "Descrição obrigatória"),
   date: z.string().min(1, "Data obrigatória"),
-  amount: z.number({ invalid_type_error: "Valor obrigatório" }).positive("Valor deve ser positivo"),
+  amount: z
+    .number({
+      error: (issue) =>
+        issue.input === undefined ? "Valor obrigatório" : "Informe um número válido",
+    })
+    .positive("Valor deve ser positivo"),
   type: z.enum(["income", "expense"]),
   categoryId: z.string().min(1, "Categoria obrigatória"),
 })
@@ -52,7 +57,6 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
     handleSubmit,
     reset,
     control,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
@@ -60,7 +64,7 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
     defaultValues: { type: "expense" },
   })
 
-  const selectedType = watch("type")
+  const selectedType = useWatch({ control, name: "type", defaultValue: "expense" })
 
   // Preenche ou limpa o formulário ao abrir
   useEffect(() => {
@@ -199,7 +203,7 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
               control={control}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id='tx-category' aria-invalid={!!errors.categoryId}>
+                  <SelectTrigger id='tx-category' className='w-full' aria-invalid={!!errors.categoryId}>
                     <SelectValue placeholder='Selecione' />
                   </SelectTrigger>
                   <SelectContent>

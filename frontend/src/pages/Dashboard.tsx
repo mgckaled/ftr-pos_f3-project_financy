@@ -1,4 +1,5 @@
 import { useQuery } from "@apollo/client/react";
+import { useMemo } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowDownCircle,
@@ -100,15 +101,17 @@ export default function Dashboard() {
     fetchPolicy: "cache-and-network",
   });
 
-  const transactions = txData?.transactions ?? [];
-  const categories = catData?.categories ?? [];
+  const transactions = useMemo(() => txData?.transactions ?? [], [txData]);
+  const categories = useMemo(() => catData?.categories ?? [], [catData]);
 
   // Mapa id → categoria + índice
-  const categoryMap = new Map<string, Category>(
-    categories.map((c) => [c.id, c])
+  const categoryMap = useMemo(
+    () => new Map<string, Category>(categories.map((c) => [c.id, c])),
+    [categories]
   );
-  const categoryIndexMap = new Map<string, number>(
-    categories.map((c, i) => [c.id, i])
+  const categoryIndexMap = useMemo(
+    () => new Map<string, number>(categories.map((c, i) => [c.id, i])),
+    [categories]
   );
 
   // Resumo financeiro
