@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 import { useQuery, useMutation } from "@apollo/client/react"
-import { Plus, Pencil, Trash2, Tag as TagIcon, ArrowUpDown } from "lucide-react"
+import { Plus, Pencil, Trash2, Tag as TagIcon, ArrowUpDown, AlertTriangle } from "lucide-react"
 
 import { useAuth } from "@/hooks/useAuth"
 import { Topbar } from "@/components/layout/Topbar"
@@ -9,6 +9,14 @@ import { IconButton } from "@/components/shared/IconButton"
 import { CategoryDialog } from "@/components/dialogs/CategoryDialog"
 import { CATEGORY_ICON_MAP, CATEGORY_COLOR_BG } from "@/components/dialogs/category-constants"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { GET_CATEGORIES } from "@/graphql/queries/categories"
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions"
 import { DELETE_CATEGORY } from "@/graphql/mutations/categories"
@@ -42,6 +50,8 @@ export default function Categories() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | undefined>()
 
+  const [confirmDelete, setConfirmDelete] = useState<Category | null>(null)
+
   const { data: catData, loading } = useQuery(GET_CATEGORIES, {
     skip: !isAuthenticated,
     fetchPolicy: "cache-and-network",
@@ -53,7 +63,7 @@ export default function Categories() {
   })
 
   const [deleteCategory] = useMutation(DELETE_CATEGORY, {
-    refetchQueries: [GET_CATEGORIES],
+    refetchQueries: [GET_CATEGORIES, GET_TRANSACTIONS],
   })
 
   const categories = useMemo(() => catData?.categories ?? [], [catData])
@@ -77,12 +87,14 @@ export default function Categories() {
     setDialogOpen(true)
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Deseja excluir esta categoria?")) return
+  async function handleConfirmDelete() {
+    if (!confirmDelete) return
     try {
-      await deleteCategory({ variables: { id } })
+      await deleteCategory({ variables: { id: confirmDelete.id } })
     } catch (err) {
       console.error(err)
+    } finally {
+      setConfirmDelete(null)
     }
   }
 
@@ -197,7 +209,7 @@ export default function Categories() {
                         icon={Trash2}
                         variant="destructive"
                         aria-label="Excluir"
-                        onClick={() => handleDelete(cat.id)}
+                        onClick={() => setConfirmDelete(cat)}
                       />
                     </div>
                   </div>
@@ -223,6 +235,45 @@ export default function Categories() {
           </div>
         )}
       </main>
+
+      <Dialog open={!!confirmDelete} onOpenChange={(open) => { if (!open) setConfirmDelete(null) }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="flex size-10 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle className="h-5 w-5 text-danger" />
+              </div>
+              <DialogTitle>Excluir categoria</DialogTitle>
+            </div>
+            <DialogDescription className="text-sm text-gray-600 leading-relaxed">
+              Você está prestes a excluir a categoria{" "}
+              <span className="font-semibold text-gray-800">{confirmDelete?.name}</span>.
+              {(() => {
+                const count = confirmDelete ? (txCountByCategory.get(confirmDelete.id) ?? 0) : 0
+                if (count === 0) return " Esta categoria não possui transações vinculadas."
+                return (
+                  <>
+                    {" "}Esta categoria possui{" "}
+                    <span className="font-semibold text-danger">{count} transação(ões) vinculada(s)</span>
+                    {" "}que também serão excluídas permanentemente.
+                  </>
+                )
+              })()}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 mt-2">
+            <Button variant="outline" onClick={() => setConfirmDelete(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+            >
+              Excluir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <CategoryDialog
         open={dialogOpen}
