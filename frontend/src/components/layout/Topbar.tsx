@@ -1,6 +1,6 @@
 import Logo from "@/assets/logo.svg?react";
 import { cn } from "@/lib/utils";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 interface TopbarProps {
   userName?: string;
@@ -45,12 +45,13 @@ export function Topbar({ userName }: TopbarProps) {
         ))}
       </nav>
 
-      <div
-        aria-label={`Avatar de ${userName ?? "usuário"}`}
-        className="flex size-9 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-700 select-none"
+      <Link
+        to="/profile"
+        aria-label="Ir para o perfil"
+        className="flex size-9 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-700 select-none hover:bg-gray-300 transition-colors"
       >
         {getInitials(userName)}
-      </div>
+      </Link>
     </header>
   );
 }
