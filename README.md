@@ -84,7 +84,7 @@ DATABASE_URL=file:dev.db
 
 A aplicação possui 6 páginas e 2 modais com formulários (Dialog):
 
-- `/` — Autenticação (alterna entre Login e Cadastro conforme escolha do usuário)
+
 - Dashboard (visão geral das finanças)
 - Transações
 - Categorias
