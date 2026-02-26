@@ -46,8 +46,12 @@ const app = Fastify({
   forceCloseConnections: "idle",
 });
 
+const allowedOrigins = (process.env["CORS_ORIGIN"] ?? "http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim());
+
 await app.register(cors, {
-  origin: ["http://localhost:5173"],
+  origin: allowedOrigins,
   credentials: true,
 });
 
@@ -55,7 +59,7 @@ await app.register(mercurius, {
   schema,
   resolvers,
   context: buildContext,
-  graphiql: true,
+  graphiql: process.env["NODE_ENV"] !== "production",
 });
 
 const shutdown = async (signal: string) => {

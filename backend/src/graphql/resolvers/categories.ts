@@ -62,15 +62,13 @@ export const categoriesResolvers = {
     ) => {
       requireAuth(ctx);
 
-      const existing = await prisma.category.findFirst({
-        where: { id: args.id, userId: ctx.userId },
-      });
-
-      if (!existing) {
-        throw new GraphQLError("Categoria não encontrada ou acesso negado", {
-          extensions: { code: "NOT_FOUND", http: { status: 404 } },
+      await prisma.category
+        .findFirstOrThrow({ where: { id: args.id, userId: ctx.userId } })
+        .catch(() => {
+          throw new GraphQLError("Categoria não encontrada ou acesso negado", {
+            extensions: { code: "NOT_FOUND", http: { status: 404 } },
+          });
         });
-      }
 
       return prisma.category.update({
         where: { id: args.id },
@@ -90,15 +88,13 @@ export const categoriesResolvers = {
     ) => {
       requireAuth(ctx);
 
-      const existing = await prisma.category.findFirst({
-        where: { id: args.id, userId: ctx.userId },
-      });
-
-      if (!existing) {
-        throw new GraphQLError("Categoria não encontrada ou acesso negado", {
-          extensions: { code: "NOT_FOUND", http: { status: 404 } },
+      await prisma.category
+        .findFirstOrThrow({ where: { id: args.id, userId: ctx.userId } })
+        .catch(() => {
+          throw new GraphQLError("Categoria não encontrada ou acesso negado", {
+            extensions: { code: "NOT_FOUND", http: { status: 404 } },
+          });
         });
-      }
 
       await prisma.category.delete({ where: { id: args.id } });
       return true;

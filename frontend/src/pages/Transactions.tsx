@@ -23,23 +23,13 @@ import { GET_CATEGORIES } from "@/graphql/queries/categories";
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions";
 import type { Category, Transaction } from "@/graphql/types";
 import { useAuth } from "@/hooks/useAuth";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { getTagColor } from "@/lib/constants";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const TAG_COLORS = [
-  "blue", "purple", "pink", "red", "orange", "yellow", "green",
-] as const;
-
 function getCategoryColor(index: number): TagColor {
-  return TAG_COLORS[index % TAG_COLORS.length];
-}
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR");
+  return getTagColor(index);
 }
 
 const PAGE_SIZE = 10;

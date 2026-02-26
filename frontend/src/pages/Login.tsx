@@ -46,8 +46,13 @@ export default function Login() {
         navigate("/dashboard");
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Erro ao fazer login";
+      const raw = err instanceof Error ? err.message : "";
+      const message = raw.toLowerCase().includes("invalid")
+        || raw.toLowerCase().includes("credenciais")
+        || raw.toLowerCase().includes("não encontrado")
+        || raw.toLowerCase().includes("not found")
+        ? "E-mail ou senha incorretos."
+        : "Não foi possível fazer login. Tente novamente.";
       setServerError(message);
     }
   };

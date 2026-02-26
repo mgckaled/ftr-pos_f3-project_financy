@@ -50,8 +50,12 @@ export default function Register() {
         navigate("/dashboard");
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Erro ao criar conta";
+      const raw = err instanceof Error ? err.message : "";
+      const message = raw.toLowerCase().includes("already")
+        || raw.toLowerCase().includes("já existe")
+        || raw.toLowerCase().includes("email")
+        ? "Este e-mail já está cadastrado."
+        : "Não foi possível criar a conta. Tente novamente.";
       setServerError(message);
     }
   };

@@ -21,14 +21,12 @@ import { GET_CATEGORIES } from "@/graphql/queries/categories"
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions"
 import { DELETE_CATEGORY } from "@/graphql/mutations/categories"
 import type { Category } from "@/graphql/types"
+import { getTagColor } from "@/lib/constants"
 
 // ── Paleta fallback ────────────────────────────────────────────────────────────
 
-const TAG_COLORS = [
-  "blue", "purple", "pink", "red", "orange", "yellow", "green",
-] as const
 function getCategoryColor(i: number): TagColor {
-  return TAG_COLORS[i % TAG_COLORS.length]
+  return getTagColor(i)
 }
 
 const FALLBACK_ICON_KEYS = Object.keys(CATEGORY_ICON_MAP)

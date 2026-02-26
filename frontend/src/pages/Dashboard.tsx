@@ -17,19 +17,12 @@ import { GET_CATEGORIES } from "@/graphql/queries/categories";
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions";
 import type { Category } from "@/graphql/types";
 import { useAuth } from "@/hooks/useAuth";
+import { formatCurrency, formatDate } from "@/lib/format";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const FALLBACK_ICON_KEYS = Object.keys(CATEGORY_ICON_MAP);
 const FALLBACK_COLOR_KEYS = Object.keys(CATEGORY_COLOR_BG);
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR");
-}
 
 function isCurrentMonth(iso: string) {
   const d = new Date(iso);

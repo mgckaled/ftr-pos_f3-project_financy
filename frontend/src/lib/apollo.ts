@@ -1,8 +1,15 @@
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { SetContextLink } from "@apollo/client/link/context";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL as string | undefined;
+if (!backendUrl) {
+  throw new Error(
+    "[apollo] VITE_BACKEND_URL não definida. Preencha o arquivo .env com VITE_BACKEND_URL=<url da API>."
+  );
+}
+
 const httpLink = new HttpLink({
-  uri: import.meta.env.VITE_BACKEND_URL as string,
+  uri: backendUrl,
 });
 
 const authLink = new SetContextLink((prevContext) => {

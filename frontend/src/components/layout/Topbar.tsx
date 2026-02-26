@@ -12,18 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import { getInitials } from "@/lib/constants";
 
 interface TopbarProps {
   userName?: string;
-}
-
-function getInitials(name?: string): string {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0]?.toUpperCase() ?? "")
-    .join("");
 }
 
 const navLinks = [
@@ -85,7 +77,7 @@ export function Topbar({ userName }: TopbarProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="cursor-pointer gap-2 text-danger focus:text-danger focus:bg-red-50"
-            onClick={logout}
+            onClick={() => { logout(); navigate("/"); }}
           >
             <LogOut className="h-4 w-4" />
             Sair

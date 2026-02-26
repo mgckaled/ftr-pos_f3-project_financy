@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { getInitials } from "@/lib/constants";
 
 // ── Schema ─────────────────────────────────────────────────────────────────
 
@@ -19,17 +20,6 @@ const profileSchema = z.object({
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
-
-// ── Helper ─────────────────────────────────────────────────────────────────
-
-function getInitials(name?: string | null): string {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 // ── Component ──────────────────────────────────────────────────────────────
 
