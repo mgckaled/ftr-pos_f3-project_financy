@@ -101,7 +101,7 @@ export default function Categories() {
           </div>
           <Button
             onClick={openCreate}
-            className="bg-brand-base hover:bg-brand-dark text-white"
+            className=""
           >
             <Plus className="mr-1.5 h-4 w-4" />
             Nova categoria

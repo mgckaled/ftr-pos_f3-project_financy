@@ -174,7 +174,7 @@ function CategoryForm({ category, onClose }: CategoryFormProps) {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-brand-base hover:bg-brand-dark text-white"
+        className="w-full"
       >
         {isSubmitting ? "Salvando..." : "Salvar"}
       </Button>

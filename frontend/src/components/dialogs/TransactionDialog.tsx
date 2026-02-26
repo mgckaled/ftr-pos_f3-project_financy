@@ -220,7 +220,7 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
           </div>
 
           {/* Botão Salvar */}
-          <Button type='submit' disabled={isSubmitting} className='w-full bg-brand-base hover:bg-brand-dark text-white'>
+          <Button type='submit' disabled={isSubmitting} className='w-full'>
             {isSubmitting ? "Salvando..." : "Salvar"}
           </Button>
         </form>

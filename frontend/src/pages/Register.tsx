@@ -155,7 +155,7 @@ export default function Register() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-brand-base hover:bg-brand-dark text-white"
+            className="w-full"
           >
             {isSubmitting ? "Cadastrando..." : "Cadastrar"}
           </Button>

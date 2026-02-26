@@ -124,7 +124,7 @@ export default function Profile() {
             <Button
               type="submit"
               disabled={!isDirty || isSubmitting}
-              className="w-full bg-brand-base hover:bg-brand-dark text-white disabled:opacity-50"
+              className="w-full"
             >
               {isSubmitting ? "Salvando..." : "Salvar alterações"}
             </Button>
