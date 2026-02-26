@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 import { useQuery, useMutation } from "@apollo/client/react"
-import { Plus, Pencil, Trash2 } from "lucide-react"
+import { Plus, Pencil, Trash2, Tag as TagIcon, ArrowUpDown } from "lucide-react"
 
 import { useAuth } from "@/hooks/useAuth"
 import { Topbar } from "@/components/layout/Topbar"
@@ -91,7 +91,7 @@ export default function Categories() {
     <div className="min-h-screen bg-gray-100">
       <Topbar userName={user?.name} />
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-6 py-8">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -111,17 +111,27 @@ export default function Categories() {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <p className="text-3xl font-bold text-gray-800">{categories.length}</p>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mt-1">
-              Total de categorias
-            </p>
+          <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
+              <TagIcon className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800">{categories.length}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mt-0.5">
+                Total de categorias
+              </p>
+            </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <p className="text-3xl font-bold text-gray-800">{transactions.length}</p>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mt-1">
-              Total de transações
-            </p>
+          <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
+              <ArrowUpDown className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800">{transactions.length}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mt-0.5">
+                Total de transações
+              </p>
+            </div>
           </div>
           {(() => {
             const mostUsedIdx = categories.reduce<number>((topIdx, cat, i) => {
@@ -170,7 +180,7 @@ export default function Categories() {
               return (
                 <div
                   key={cat.id}
-                  className="bg-white rounded-xl border border-gray-200 p-4"
+                  className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col min-h-52"
                 >
                   {/* Ações */}
                   <div className="flex items-start justify-between mb-3">
@@ -194,21 +204,19 @@ export default function Categories() {
                   </div>
 
                   {/* Nome */}
-                  <p className="text-sm font-semibold text-gray-800 mb-1">
+                  <p className="text-base font-semibold text-gray-800 mb-1">
                     {cat.name}
                   </p>
 
                   {/* Descrição */}
-                  {cat.description && (
-                    <p className="text-xs text-gray-500 mb-3 line-clamp-2">
-                      {cat.description}
-                    </p>
-                  )}
+                  <p className="text-sm text-gray-500 grow">
+                    {cat.description ?? ""}
+                  </p>
 
                   {/* Tag + contagem */}
-                  <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center justify-between mt-4">
                     <Tag label={cat.name} color={getCategoryColor(i)} />
-                    <span className="text-xs text-gray-400">{count} itens</span>
+                    <span className="text-sm text-gray-400">{count} itens</span>
                   </div>
                 </div>
               )

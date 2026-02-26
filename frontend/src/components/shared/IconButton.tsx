@@ -20,9 +20,9 @@ export function IconButton({
     <button
       disabled={disabled}
       className={cn(
-        "inline-flex size-8 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-base cursor-pointer",
+        "inline-flex size-8 items-center justify-center rounded-md border border-gray-200 bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-base cursor-pointer",
         variant === "default" &&
-          "text-gray-500 hover:bg-gray-200 hover:text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed",
+          "text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed",
         variant === "destructive" &&
           "text-danger hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed",
         className
