@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-type TagColor =
+export type TagColor =
   | "blue"
   | "purple"
   | "pink"

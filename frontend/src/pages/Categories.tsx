@@ -4,7 +4,7 @@ import { Plus, Pencil, Trash2, Tag as TagIcon, ArrowUpDown } from "lucide-react"
 
 import { useAuth } from "@/hooks/useAuth"
 import { Topbar } from "@/components/layout/Topbar"
-import { Tag } from "@/components/shared/Tag"
+import { Tag, type TagColor } from "@/components/shared/Tag"
 import { IconButton } from "@/components/shared/IconButton"
 import { CategoryDialog } from "@/components/dialogs/CategoryDialog"
 import { CATEGORY_ICON_MAP, CATEGORY_COLOR_BG } from "@/components/dialogs/category-constants"
@@ -19,7 +19,6 @@ import type { Category } from "@/graphql/types"
 const TAG_COLORS = [
   "blue", "purple", "pink", "red", "orange", "yellow", "green",
 ] as const
-type TagColor = (typeof TAG_COLORS)[number]
 function getCategoryColor(i: number): TagColor {
   return TAG_COLORS[i % TAG_COLORS.length]
 }
@@ -215,7 +214,7 @@ export default function Categories() {
 
                   {/* Tag + contagem */}
                   <div className="flex items-center justify-between mt-4">
-                    <Tag label={cat.name} color={getCategoryColor(i)} />
+                    <Tag label={cat.name} color={(cat.color as TagColor) ?? getCategoryColor(i)} />
                     <span className="text-sm text-gray-400">{count} itens</span>
                   </div>
                 </div>

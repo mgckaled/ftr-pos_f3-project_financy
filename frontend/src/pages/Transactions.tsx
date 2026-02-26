@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@apollo/client/react";
-import { ArrowDownCircle, ArrowUpCircle, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { TransactionDialog } from "@/components/dialogs/TransactionDialog";
 import { Topbar } from "@/components/layout/Topbar";
 import { IconButton } from "@/components/shared/IconButton";
-import { Tag } from "@/components/shared/Tag";
+import { Tag, type TagColor } from "@/components/shared/Tag";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CATEGORY_COLOR_BG, CATEGORY_ICON_MAP } from "@/components/dialogs/category-constants";
+import { Label } from "@/components/ui/label";
 import { DELETE_TRANSACTION } from "@/graphql/mutations/transactions";
 import { GET_CATEGORIES } from "@/graphql/queries/categories";
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions";
@@ -26,8 +28,6 @@ import { useAuth } from "@/hooks/useAuth";
 const TAG_COLORS = [
   "blue", "purple", "pink", "red", "orange", "yellow", "green",
 ] as const;
-
-type TagColor = (typeof TAG_COLORS)[number];
 
 function getCategoryColor(index: number): TagColor {
   return TAG_COLORS[index % TAG_COLORS.length];
@@ -155,61 +155,79 @@ export default function Transactions() {
         </div>
 
         {/* Filtros */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
-          <Input
-            placeholder="Buscar descrição"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
+        <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 mb-4">
+          <div className="grid grid-cols-4 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-gray-500">Buscar</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Buscar por descrição"
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  className="pl-9"
+                />
+              </div>
+            </div>
 
-          <Select value={filterType} onValueChange={(v) => { setFilterType(v); setPage(1); }}>
-            <SelectTrigger>
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="income">Entrada</SelectItem>
-              <SelectItem value="expense">Saída</SelectItem>
-            </SelectContent>
-          </Select>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-gray-500">Tipo</Label>
+              <Select value={filterType} onValueChange={(v) => { setFilterType(v); setPage(1); }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="income">Entrada</SelectItem>
+                  <SelectItem value="expense">Saída</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          <Select value={filterCategory} onValueChange={(v) => { setFilterCategory(v); setPage(1); }}>
-            <SelectTrigger>
-              <SelectValue placeholder="Categoria" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-gray-500">Categoria</Label>
+              <Select value={filterCategory} onValueChange={(v) => { setFilterCategory(v); setPage(1); }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <Select
-            value={`${filterMonth}-${filterYear}`}
-            onValueChange={(v) => {
-              const [m, y] = v.split("-");
-              setFilterMonth(m);
-              setFilterYear(y);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Período" />
-            </SelectTrigger>
-            <SelectContent>
-              {years.flatMap((y) =>
-                MONTHS.map((name, idx) => (
-                  <SelectItem key={`${idx + 1}-${y}`} value={`${idx + 1}-${y}`}>
-                    {name} / {y}
-                  </SelectItem>
-                ))
-              )}
-              <SelectItem value="all-all">Todos os períodos</SelectItem>
-            </SelectContent>
-          </Select>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-gray-500">Período</Label>
+              <Select
+                value={`${filterMonth}-${filterYear}`}
+                onValueChange={(v) => {
+                  const [m, y] = v.split("-");
+                  setFilterMonth(m);
+                  setFilterYear(y);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Período" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.flatMap((y) =>
+                    MONTHS.map((name, idx) => (
+                      <SelectItem key={`${idx + 1}-${y}`} value={`${idx + 1}-${y}`}>
+                        {name} / {y}
+                      </SelectItem>
+                    ))
+                  )}
+                  <SelectItem value="all-all">Todos os períodos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         {/* Tabela */}
@@ -238,15 +256,28 @@ export default function Transactions() {
                   const idx = cat ? (categoryIndexMap.get(cat.id) ?? 0) : 0;
                   return (
                     <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-5 py-3 font-medium text-gray-800">
-                        {tx.title}
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          {(() => {
+                            const iconKey = cat?.icon ?? "briefcase";
+                            const colorKey = cat?.color ?? "gray";
+                            const Icon = CATEGORY_ICON_MAP[iconKey];
+                            const colorCls = CATEGORY_COLOR_BG[colorKey] ?? "bg-gray-100 text-gray-500";
+                            return Icon ? (
+                              <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${colorCls}`}>
+                                <Icon className="h-4 w-4" />
+                              </div>
+                            ) : null;
+                          })()}
+                          <span className="font-medium text-gray-800">{tx.title}</span>
+                        </div>
                       </td>
                       <td className="px-5 py-3 text-gray-500">
                         {formatDate(tx.createdAt)}
                       </td>
                       <td className="px-5 py-3">
                         {cat ? (
-                          <Tag label={cat.name} color={getCategoryColor(idx)} />
+                          <Tag label={cat.name} color={(cat.color as TagColor) ?? getCategoryColor(idx)} />
                         ) : (
                           <span className="text-gray-400">—</span>
                         )}
@@ -267,8 +298,8 @@ export default function Transactions() {
                           {tx.type === "income" ? "Entrada" : "Saída"}
                         </span>
                       </td>
-                      <td className="px-5 py-3 text-right font-semibold text-gray-800">
-                        {tx.type === "income" ? "+" : "-"}
+                      <td className={`px-5 py-3 text-right font-semibold ${tx.type === "income" ? "text-success" : "text-gray-800"}`}>
+                        {tx.type === "income" ? "+ " : "- "}
                         {formatCurrency(tx.amount)}
                       </td>
                       <td className="px-5 py-3">
@@ -303,6 +334,13 @@ export default function Transactions() {
                 {filtered.length} resultados
               </span>
               <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="flex size-7 items-center justify-center rounded text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                   <button
                     key={p}
@@ -316,6 +354,13 @@ export default function Transactions() {
                     {p}
                   </button>
                 ))}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="flex size-7 items-center justify-center rounded text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
             </div>
           )}
