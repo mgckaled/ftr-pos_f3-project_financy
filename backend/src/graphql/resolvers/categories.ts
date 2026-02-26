@@ -34,19 +34,30 @@ export const categoriesResolvers = {
   Mutation: {
     createCategory: async (
       root: unknown,
-      args: { input: { name: string } },
+      args: {
+        input: { name: string; description?: string; icon?: string; color?: string };
+      },
       ctx: MercuriusContext
     ) => {
       requireAuth(ctx);
 
       return prisma.category.create({
-        data: { name: args.input.name, userId: ctx.userId },
+        data: {
+          name: args.input.name,
+          description: args.input.description ?? null,
+          icon: args.input.icon ?? null,
+          color: args.input.color ?? null,
+          userId: ctx.userId,
+        },
       });
     },
 
     updateCategory: async (
       root: unknown,
-      args: { id: string; input: { name: string } },
+      args: {
+        id: string;
+        input: { name: string; description?: string; icon?: string; color?: string };
+      },
       ctx: MercuriusContext
     ) => {
       requireAuth(ctx);
@@ -63,7 +74,12 @@ export const categoriesResolvers = {
 
       return prisma.category.update({
         where: { id: args.id },
-        data: { name: args.input.name },
+        data: {
+          name: args.input.name,
+          description: args.input.description != null ? args.input.description : undefined,
+          icon: args.input.icon != null ? args.input.icon : undefined,
+          color: args.input.color != null ? args.input.color : undefined,
+        },
       });
     },
 

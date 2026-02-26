@@ -2,6 +2,9 @@ export const categoriesTypeDefs = `#graphql
   type Category {
     id: ID!
     name: String!
+    description: String
+    icon: String
+    color: String
     userId: String!
     createdAt: String!
   }
@@ -13,10 +16,16 @@ export const categoriesTypeDefs = `#graphql
 
   input CreateCategoryInput {
     name: String!
+    description: String
+    icon: String
+    color: String
   }
 
   input UpdateCategoryInput {
     name: String!
+    description: String
+    icon: String
+    color: String
   }
 
   extend type Mutation {
