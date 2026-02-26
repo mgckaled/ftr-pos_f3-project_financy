@@ -33,9 +33,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void apolloClient.clearStore();
   }, []);
 
+  const updateUser = useCallback((partial: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...partial };
+      localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   const value = useMemo<AuthContextValue>(
-    () => ({ user, token, isAuthenticated: !!token, login, logout }),
-    [user, token, login, logout]
+    () => ({ user, token, isAuthenticated: !!token, login, logout, updateUser }),
+    [user, token, login, logout, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

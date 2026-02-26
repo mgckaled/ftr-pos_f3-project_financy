@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,23 +35,31 @@ function getInitials(name?: string | null): string {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
 
   const {
     register,
     reset,
+    handleSubmit,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: { name: "" },
   });
 
-  // Preenche o formulário quando os dados do usuário estiverem disponíveis
+  // Inicializa o formulário apenas uma vez quando os dados chegam
+  const initialized = useRef(false);
   useEffect(() => {
-    if (user) {
+    if (user && !initialized.current) {
       reset({ name: user.name });
+      initialized.current = true;
     }
   }, [user, reset]);
+
+  const onSubmit = async (data: ProfileFormData) => {
+    updateUser({ name: data.name });
+    reset({ name: data.name }); // atualiza baseline → isDirty = false
+  };
 
   function handleLogout() {
     logout();
@@ -76,7 +84,7 @@ export default function Profile() {
           <Separator />
 
           {/* Formulário */}
-          <form className="px-8 py-6 space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="px-8 py-6 space-y-4">
             {/* Nome completo */}
             <div className="space-y-1.5">
               <Label htmlFor="profile-name">Nome completo</Label>
