@@ -17,7 +17,7 @@ import {
   ShoppingCart, Ticket,
   Utensils,
 } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -45,7 +45,7 @@ type CategoryFormData = z.infer<typeof categorySchema>
 
 // ── Ícones (2 linhas × 8 colunas) ─────────────────────────
 
-const ICONS: { icon: LucideIcon; key: string }[] = [
+export const CATEGORY_ICONS: { icon: LucideIcon; key: string }[] = [
   { icon: Briefcase,      key: "briefcase"  },
   { icon: Car,            key: "car"        },
   { icon: Heart,          key: "heart"      },
@@ -64,9 +64,13 @@ const ICONS: { icon: LucideIcon; key: string }[] = [
   { icon: ClipboardList,  key: "clipboard"  },
 ]
 
-// ── Cores (retângulos arredondados — ) ────────────────────────
+export const CATEGORY_ICON_MAP: Record<string, LucideIcon> = Object.fromEntries(
+  CATEGORY_ICONS.map(({ key, icon }) => [key, icon])
+)
 
-const COLORS = [
+// ── Cores ──────────────────────────────────────────────────
+
+export const CATEGORY_COLORS = [
   { key: "green",  bg: "bg-green-500"  },
   { key: "blue",   bg: "bg-blue-500"   },
   { key: "purple", bg: "bg-purple-500" },
@@ -76,16 +80,25 @@ const COLORS = [
   { key: "yellow", bg: "bg-yellow-500" },
 ]
 
+export const CATEGORY_COLOR_BG: Record<string, string> = {
+  green:  "bg-green-100 text-green-600",
+  blue:   "bg-blue-100 text-blue-600",
+  purple: "bg-purple-100 text-purple-600",
+  pink:   "bg-pink-100 text-pink-600",
+  red:    "bg-red-100 text-red-600",
+  orange: "bg-orange-100 text-orange-600",
+  yellow: "bg-yellow-100 text-yellow-600",
+}
+
+const DEFAULT_ICON = "briefcase"
+const DEFAULT_COLOR = "green"
+
 // ── Props ──────────────────────────────────────────────────────────────────
 
 interface CategoryDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   category?: Category
-  selectedIcon: string
-  selectedColor: string
-  onIconChange: (key: string) => void
-  onColorChange: (key: string) => void
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -94,12 +107,11 @@ export function CategoryDialog({
   open,
   onOpenChange,
   category,
-  selectedIcon,
-  selectedColor,
-  onIconChange,
-  onColorChange,
 }: CategoryDialogProps) {
   const isEditing = !!category
+
+  const [selectedIcon, setSelectedIcon] = useState(DEFAULT_ICON)
+  const [selectedColor, setSelectedColor] = useState(DEFAULT_COLOR)
 
   const [createCategory] = useMutation(CREATE_CATEGORY, {
     refetchQueries: [GET_CATEGORIES],
@@ -121,18 +133,41 @@ export function CategoryDialog({
 
   useEffect(() => {
     if (!open) return
-    reset({ name: category?.name ?? "", description: "" })
+    if (category) {
+      reset({ name: category.name, description: category.description ?? "" })
+      setSelectedIcon(category.icon ?? DEFAULT_ICON)
+      setSelectedColor(category.color ?? DEFAULT_COLOR)
+    } else {
+      reset({ name: "", description: "" })
+      setSelectedIcon(DEFAULT_ICON)
+      setSelectedColor(DEFAULT_COLOR)
+    }
   }, [open, category, reset])
 
   const onSubmit = async (data: CategoryFormData) => {
     try {
       if (isEditing && category) {
         await updateCategory({
-          variables: { id: category.id, input: { name: data.name } },
+          variables: {
+            id: category.id,
+            input: {
+              name: data.name,
+              description: data.description || undefined,
+              icon: selectedIcon,
+              color: selectedColor,
+            },
+          },
         })
       } else {
         await createCategory({
-          variables: { input: { name: data.name } },
+          variables: {
+            input: {
+              name: data.name,
+              description: data.description || undefined,
+              icon: selectedIcon,
+              color: selectedColor,
+            },
+          },
         })
       }
       onOpenChange(false)
@@ -183,11 +218,11 @@ export function CategoryDialog({
           <div className="space-y-2">
             <Label>Ícone</Label>
             <div className="grid grid-cols-8 gap-1.5">
-              {ICONS.map(({ icon: Icon, key }) => (
+              {CATEGORY_ICONS.map(({ icon: Icon, key }) => (
                 <button
                   key={key}
                   type="button"
-                  onClick={() => onIconChange(key)}
+                  onClick={() => setSelectedIcon(key)}
                   aria-label={key}
                   className={`flex size-9 items-center justify-center rounded-md border transition-colors ${
                     selectedIcon === key
@@ -205,11 +240,11 @@ export function CategoryDialog({
           <div className="space-y-2">
             <Label>Cor</Label>
             <div className="flex gap-2">
-              {COLORS.map(({ key, bg }) => (
+              {CATEGORY_COLORS.map(({ key, bg }) => (
                 <button
                   key={key}
                   type="button"
-                  onClick={() => onColorChange(key)}
+                  onClick={() => setSelectedColor(key)}
                   aria-label={key}
                   className={`flex flex-1 items-center justify-center rounded-md border bg-white p-1 transition-colors ${
                     selectedColor === key

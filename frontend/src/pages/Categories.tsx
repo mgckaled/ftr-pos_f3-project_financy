@@ -1,25 +1,19 @@
 import { useState, useMemo } from "react"
 import { useQuery, useMutation } from "@apollo/client/react"
 import { Plus, Pencil, Trash2 } from "lucide-react"
-import {
-  Utensils, Car, ShoppingCart, Zap, Coffee, ShoppingBag,
-  Briefcase, Home, Heart, DollarSign, Plane, Music,
-  Gamepad2, BookOpen, Dumbbell, Shirt,
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
 
 import { useAuth } from "@/hooks/useAuth"
 import { Topbar } from "@/components/layout/Topbar"
 import { Tag } from "@/components/shared/Tag"
 import { IconButton } from "@/components/shared/IconButton"
-import { CategoryDialog } from "@/components/dialogs/CategoryDialog"
+import { CategoryDialog, CATEGORY_ICON_MAP, CATEGORY_COLOR_BG } from "@/components/dialogs/CategoryDialog"
 import { Button } from "@/components/ui/button"
 import { GET_CATEGORIES } from "@/graphql/queries/categories"
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions"
 import { DELETE_CATEGORY } from "@/graphql/mutations/categories"
 import type { Category } from "@/graphql/types"
 
-// ── Paleta ────────────────────────────────────────────────────────────────────
+// ── Paleta fallback ────────────────────────────────────────────────────────────
 
 const TAG_COLORS = [
   "blue", "purple", "pink", "red", "orange", "yellow", "green",
@@ -29,26 +23,16 @@ function getCategoryColor(i: number): TagColor {
   return TAG_COLORS[i % TAG_COLORS.length]
 }
 
-const ICONS: Record<string, LucideIcon> = {
-  utensils: Utensils, car: Car, cart: ShoppingCart, zap: Zap,
-  coffee: Coffee, bag: ShoppingBag, briefcase: Briefcase, home: Home,
-  heart: Heart, dollar: DollarSign, plane: Plane, music: Music,
-  gamepad: Gamepad2, book: BookOpen, dumbbell: Dumbbell, shirt: Shirt,
+const FALLBACK_ICON_KEYS = Object.keys(CATEGORY_ICON_MAP)
+const FALLBACK_COLOR_KEYS = Object.keys(CATEGORY_COLOR_BG)
+
+function getIconKey(cat: Category, i: number): string {
+  return cat.icon ?? FALLBACK_ICON_KEYS[i % FALLBACK_ICON_KEYS.length]
 }
 
-const ICON_KEYS = Object.keys(ICONS)
-
-const COLOR_BG: Record<string, string> = {
-  green: "bg-green-100 text-green-600",
-  blue: "bg-blue-100 text-blue-600",
-  purple: "bg-purple-100 text-purple-600",
-  pink: "bg-pink-100 text-pink-600",
-  red: "bg-red-100 text-red-600",
-  orange: "bg-orange-100 text-orange-600",
-  yellow: "bg-yellow-100 text-yellow-600",
+function getColorKey(cat: Category, i: number): string {
+  return cat.color ?? FALLBACK_COLOR_KEYS[i % FALLBACK_COLOR_KEYS.length]
 }
-
-const COLOR_KEYS = Object.keys(COLOR_BG)
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
@@ -57,8 +41,6 @@ export default function Categories() {
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | undefined>()
-  const [selectedIcon, setSelectedIcon] = useState("utensils")
-  const [selectedColor, setSelectedColor] = useState("green")
 
   const { data: catData, loading } = useQuery(GET_CATEGORIES, {
     skip: !isAuthenticated,
@@ -87,15 +69,11 @@ export default function Categories() {
 
   function openCreate() {
     setEditingCategory(undefined)
-    setSelectedIcon(ICON_KEYS[0])
-    setSelectedColor(COLOR_KEYS[0])
     setDialogOpen(true)
   }
 
-  function openEdit(cat: Category, index: number) {
+  function openEdit(cat: Category) {
     setEditingCategory(cat)
-    setSelectedIcon(ICON_KEYS[index % ICON_KEYS.length])
-    setSelectedColor(COLOR_KEYS[index % COLOR_KEYS.length])
     setDialogOpen(true)
   }
 
@@ -145,20 +123,19 @@ export default function Categories() {
             </p>
           </div>
           {(() => {
-            const mostUsed = categories.reduce<Category | null>((top, cat) => {
+            const mostUsedIdx = categories.reduce<number>((topIdx, cat, i) => {
               const count = txCountByCategory.get(cat.id) ?? 0
-              const topCount = top ? (txCountByCategory.get(top.id) ?? 0) : -1
-              return count > topCount ? cat : top
-            }, null)
-            const Icon = mostUsed
-              ? ICONS[ICON_KEYS[categories.indexOf(mostUsed) % ICON_KEYS.length]]
-              : null
+              const topCount = topIdx >= 0 ? (txCountByCategory.get(categories[topIdx].id) ?? 0) : -1
+              return count > topCount ? i : topIdx
+            }, -1)
+            const mostUsed = mostUsedIdx >= 0 ? categories[mostUsedIdx] : null
+            const iconKey = mostUsed ? getIconKey(mostUsed, mostUsedIdx) : null
+            const colorKey = mostUsed ? getColorKey(mostUsed, mostUsedIdx) : null
+            const Icon = iconKey ? CATEGORY_ICON_MAP[iconKey] : null
             return (
               <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-3">
-                {Icon && mostUsed && (
-                  <div className={`flex size-10 items-center justify-center rounded-xl ${
-                    COLOR_BG[COLOR_KEYS[categories.indexOf(mostUsed) % COLOR_KEYS.length]]
-                  }`}>
+                {Icon && mostUsed && colorKey && (
+                  <div className={`flex size-10 items-center justify-center rounded-xl ${CATEGORY_COLOR_BG[colorKey]}`}>
                     <Icon className="h-5 w-5" />
                   </div>
                 )}
@@ -185,9 +162,9 @@ export default function Categories() {
         ) : (
           <div className="grid grid-cols-4 gap-4">
             {categories.map((cat, i) => {
-              const iconKey = ICON_KEYS[i % ICON_KEYS.length]
-              const colorKey = COLOR_KEYS[i % COLOR_KEYS.length]
-              const Icon = ICONS[iconKey]
+              const iconKey = getIconKey(cat, i)
+              const colorKey = getColorKey(cat, i)
+              const Icon = CATEGORY_ICON_MAP[iconKey]
               const count = txCountByCategory.get(cat.id) ?? 0
               return (
                 <div
@@ -196,15 +173,15 @@ export default function Categories() {
                 >
                   {/* Ações */}
                   <div className="flex items-start justify-between mb-3">
-                    <div className={`flex size-10 items-center justify-center rounded-xl ${COLOR_BG[colorKey]}`}>
-                      <Icon className="h-5 w-5" />
+                    <div className={`flex size-10 items-center justify-center rounded-xl ${CATEGORY_COLOR_BG[colorKey]}`}>
+                      {Icon && <Icon className="h-5 w-5" />}
                     </div>
                     <div className="flex gap-1">
                       <IconButton
                         icon={Pencil}
                         variant="default"
                         aria-label="Editar"
-                        onClick={() => openEdit(cat, i)}
+                        onClick={() => openEdit(cat)}
                       />
                       <IconButton
                         icon={Trash2}
@@ -216,12 +193,19 @@ export default function Categories() {
                   </div>
 
                   {/* Nome */}
-                  <p className="text-sm font-semibold text-gray-800 mb-3">
+                  <p className="text-sm font-semibold text-gray-800 mb-1">
                     {cat.name}
                   </p>
 
+                  {/* Descrição */}
+                  {cat.description && (
+                    <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+                      {cat.description}
+                    </p>
+                  )}
+
                   {/* Tag + contagem */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-3">
                     <Tag label={cat.name} color={getCategoryColor(i)} />
                     <span className="text-xs text-gray-400">{count} itens</span>
                   </div>
@@ -236,10 +220,6 @@ export default function Categories() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         category={editingCategory}
-        selectedIcon={selectedIcon}
-        selectedColor={selectedColor}
-        onIconChange={setSelectedIcon}
-        onColorChange={setSelectedColor}
       />
     </div>
   )

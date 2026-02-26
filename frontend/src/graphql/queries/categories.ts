@@ -15,6 +15,9 @@ export const GET_CATEGORIES: TypedDocumentNode<
     categories {
       id
       name
+      description
+      icon
+      color
       userId
       createdAt
     }
@@ -39,6 +42,9 @@ export const GET_CATEGORY: TypedDocumentNode<
     category(id: $id) {
       id
       name
+      description
+      icon
+      color
       userId
       createdAt
     }

@@ -4,7 +4,7 @@ import type { Category } from "../types";
 // ── Create ────────────────────────────────────────────────────────────────────
 
 interface CreateCategoryVariables {
-  input: { name: string };
+  input: { name: string; description?: string; icon?: string; color?: string };
 }
 
 interface CreateCategoryData {
@@ -19,6 +19,9 @@ export const CREATE_CATEGORY: TypedDocumentNode<
     createCategory(input: $input) {
       id
       name
+      description
+      icon
+      color
       userId
       createdAt
     }
@@ -29,7 +32,7 @@ export const CREATE_CATEGORY: TypedDocumentNode<
 
 interface UpdateCategoryVariables {
   id: string;
-  input: { name: string };
+  input: { name: string; description?: string; icon?: string; color?: string };
 }
 
 interface UpdateCategoryData {
@@ -44,6 +47,9 @@ export const UPDATE_CATEGORY: TypedDocumentNode<
     updateCategory(id: $id, input: $input) {
       id
       name
+      description
+      icon
+      color
       userId
       createdAt
     }
