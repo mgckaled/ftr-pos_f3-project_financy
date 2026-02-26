@@ -1,20 +1,33 @@
+import { useMutation } from "@apollo/client/react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import type { LucideIcon } from "lucide-react"
+import {
+  BookOpen,
+  Briefcase, Car,
+  ClipboardList,
+  Coffee,
+  Dumbbell,
+  Gift,
+  Heart,
+  Home,
+  Newspaper,
+  PiggyBank,
+  ShoppingBag,
+  ShoppingBasket,
+  ShoppingCart, Ticket,
+  Utensils,
+} from "lucide-react"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@apollo/client/react"
 import { z } from "zod"
-import {
-  Utensils, Car, ShoppingCart, Zap, Coffee, ShoppingBag,
-  Briefcase, Home, Heart, DollarSign, Plane, Music,
-  Gamepad2, BookOpen, Dumbbell, Shirt,
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
 
-import {
-  Dialog, DialogContent, DialogHeader,
-  DialogTitle, DialogDescription,
-} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog, DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CREATE_CATEGORY, UPDATE_CATEGORY } from "@/graphql/mutations/categories"
@@ -30,28 +43,28 @@ const categorySchema = z.object({
 
 type CategoryFormData = z.infer<typeof categorySchema>
 
-// ── Ícones disponíveis ─────────────────────────────────────────────────────
+// ── Ícones (2 linhas × 8 colunas) ─────────────────────────
 
 const ICONS: { icon: LucideIcon; key: string }[] = [
-  { icon: Utensils,    key: "utensils"   },
-  { icon: Car,         key: "car"        },
-  { icon: ShoppingCart,key: "cart"       },
-  { icon: Zap,         key: "zap"        },
-  { icon: Coffee,      key: "coffee"     },
-  { icon: ShoppingBag, key: "bag"        },
-  { icon: Briefcase,   key: "briefcase"  },
-  { icon: Home,        key: "home"       },
-  { icon: Heart,       key: "heart"      },
-  { icon: DollarSign,  key: "dollar"     },
-  { icon: Plane,       key: "plane"      },
-  { icon: Music,       key: "music"      },
-  { icon: Gamepad2,    key: "gamepad"    },
-  { icon: BookOpen,    key: "book"       },
-  { icon: Dumbbell,    key: "dumbbell"   },
-  { icon: Shirt,       key: "shirt"      },
+  { icon: Briefcase,      key: "briefcase"  },
+  { icon: Car,            key: "car"        },
+  { icon: Heart,          key: "heart"      },
+  { icon: PiggyBank,      key: "piggybank"  },
+  { icon: ShoppingCart,   key: "cart"       },
+  { icon: Ticket,         key: "ticket"     },
+  { icon: ShoppingBag,    key: "bag"        },
+  { icon: Utensils,       key: "utensils"   },
+  { icon: Coffee,         key: "coffee"     },
+  { icon: Home,           key: "home"       },
+  { icon: Gift,           key: "gift"       },
+  { icon: Dumbbell,       key: "dumbbell"   },
+  { icon: BookOpen,       key: "book"       },
+  { icon: ShoppingBasket, key: "basket"     },
+  { icon: Newspaper,      key: "newspaper"  },
+  { icon: ClipboardList,  key: "clipboard"  },
 ]
 
-// ── Cores disponíveis ──────────────────────────────────────────────────────
+// ── Cores (retângulos arredondados — ) ────────────────────────
 
 const COLORS = [
   { key: "green",  bg: "bg-green-500"  },
@@ -60,7 +73,7 @@ const COLORS = [
   { key: "pink",   bg: "bg-pink-500"   },
   { key: "red",    bg: "bg-red-500"    },
   { key: "orange", bg: "bg-orange-500" },
-  { key: "yellow", bg: "bg-yellow-400" },
+  { key: "yellow", bg: "bg-yellow-500" },
 ]
 
 // ── Props ──────────────────────────────────────────────────────────────────
@@ -108,11 +121,7 @@ export function CategoryDialog({
 
   useEffect(() => {
     if (!open) return
-    if (category) {
-      reset({ name: category.name, description: "" })
-    } else {
-      reset({ name: "", description: "" })
-    }
+    reset({ name: category?.name ?? "", description: "" })
   }, [open, category, reset])
 
   const onSubmit = async (data: CategoryFormData) => {
@@ -161,15 +170,13 @@ export function CategoryDialog({
 
           {/* Descrição */}
           <div className="space-y-1.5">
-            <Label htmlFor="cat-description">
-              Descrição{" "}
-              <span className="text-xs text-gray-400 font-normal">Opcional</span>
-            </Label>
+            <Label htmlFor="cat-description">Descrição</Label>
             <Input
               id="cat-description"
               placeholder="Descrição da categoria"
               {...register("description")}
             />
+            <p className="text-xs text-gray-400">Opcional</p>
           </div>
 
           {/* Ícone */}
@@ -181,12 +188,12 @@ export function CategoryDialog({
                   key={key}
                   type="button"
                   onClick={() => onIconChange(key)}
+                  aria-label={key}
                   className={`flex size-9 items-center justify-center rounded-md border transition-colors ${
                     selectedIcon === key
                       ? "border-brand-base bg-brand-base/10 text-brand-base"
                       : "border-gray-200 text-gray-500 hover:bg-gray-50"
                   }`}
-                  aria-label={key}
                 >
                   <Icon className="h-4 w-4" />
                 </button>
@@ -203,13 +210,15 @@ export function CategoryDialog({
                   key={key}
                   type="button"
                   onClick={() => onColorChange(key)}
-                  className={`flex size-8 items-center justify-center rounded-full transition-transform ${bg} ${
-                    selectedColor === key
-                      ? "ring-2 ring-offset-2 ring-gray-400 scale-110"
-                      : "hover:scale-105"
-                  }`}
                   aria-label={key}
-                />
+                  className={`flex flex-1 items-center justify-center rounded-md border bg-white p-1 transition-colors ${
+                    selectedColor === key
+                      ? "border-gray-600 ring-1 ring-gray-400"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div className={`h-4 w-full rounded-sm ${bg}`} />
+                </button>
               ))}
             </div>
           </div>
