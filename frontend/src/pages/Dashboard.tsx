@@ -1,28 +1,18 @@
 import { useQuery } from "@apollo/client/react";
 import { useMemo } from "react";
-import type { LucideIcon } from "lucide-react";
 import {
   ArrowDownCircle,
   ArrowUpCircle,
-  Briefcase,
-  Car,
-  Coffee,
-  DollarSign,
-  Heart,
-  Home,
   Plus,
-  ShoppingBag,
-  ShoppingCart,
   TrendingDown,
   TrendingUp,
-  Utensils,
   Wallet,
-  Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { CATEGORY_COLOR_BG, CATEGORY_ICON_MAP } from "@/components/dialogs/category-constants";
 import { Topbar } from "@/components/layout/Topbar";
-import { Tag } from "@/components/shared/Tag";
+import { Tag, type TagColor } from "@/components/shared/Tag";
 import { GET_CATEGORIES } from "@/graphql/queries/categories";
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions";
 import type { Category } from "@/graphql/types";
@@ -30,45 +20,8 @@ import { useAuth } from "@/hooks/useAuth";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const TAG_COLORS = [
-  "blue",
-  "purple",
-  "pink",
-  "red",
-  "orange",
-  "yellow",
-  "green",
-] as const;
-
-type TagColor = (typeof TAG_COLORS)[number];
-
-function getCategoryColor(index: number): TagColor {
-  return TAG_COLORS[index % TAG_COLORS.length];
-}
-
-// Ícones e cores de fundo para os cards de categoria no Figma
-const CATEGORY_ICONS: LucideIcon[] = [
-  Utensils,
-  Car,
-  ShoppingCart,
-  Zap,
-  Coffee,
-  ShoppingBag,
-  Briefcase,
-  Home,
-  Heart,
-  DollarSign,
-];
-
-const ICON_BG_COLORS = [
-  "bg-blue-100 text-blue-600",
-  "bg-purple-100 text-purple-600",
-  "bg-orange-100 text-orange-600",
-  "bg-yellow-100 text-yellow-600",
-  "bg-pink-100 text-pink-600",
-  "bg-green-100 text-green-600",
-  "bg-red-100 text-red-600",
-];
+const FALLBACK_ICON_KEYS = Object.keys(CATEGORY_ICON_MAP);
+const FALLBACK_COLOR_KEYS = Object.keys(CATEGORY_COLOR_BG);
 
 function formatCurrency(value: number) {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -235,9 +188,10 @@ export default function Dashboard() {
                 {recentTransactions.map((tx) => {
                   const cat = categoryMap.get(tx.categoryId);
                   const idx = cat ? (categoryIndexMap.get(cat.id) ?? 0) : 0;
-                  const Icon = CATEGORY_ICONS[idx % CATEGORY_ICONS.length];
-                  const iconStyle =
-                    ICON_BG_COLORS[idx % ICON_BG_COLORS.length];
+                  const iconKey = cat?.icon ?? FALLBACK_ICON_KEYS[idx % FALLBACK_ICON_KEYS.length];
+                  const colorKey = cat?.color ?? FALLBACK_COLOR_KEYS[idx % FALLBACK_COLOR_KEYS.length];
+                  const Icon = CATEGORY_ICON_MAP[iconKey];
+                  const iconStyle = CATEGORY_COLOR_BG[colorKey] ?? "bg-gray-100 text-gray-500";
 
                   return (
                     <li
@@ -248,7 +202,7 @@ export default function Dashboard() {
                       <div
                         className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${iconStyle}`}
                       >
-                        <Icon className="h-4 w-4" />
+                        {Icon && <Icon className="h-4 w-4" />}
                       </div>
 
                       {/* Título + data */}
@@ -265,26 +219,19 @@ export default function Dashboard() {
                       {cat && (
                         <Tag
                           label={cat.name}
-                          color={getCategoryColor(idx)}
+                          color={(cat.color as TagColor) ?? "gray"}
                         />
                       )}
 
                       {/* Valor + ícone de tipo */}
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={
-                            tx.type === "income"
-                              ? "text-sm font-semibold text-gray-800"
-                              : "text-sm font-semibold text-gray-800"
-                          }
-                        >
-                          {tx.type === "income" ? "+" : "-"}
-                          {formatCurrency(tx.amount)}
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">
+                          {`${tx.type === "income" ? "+" : "-"} ${formatCurrency(tx.amount)}`}
                         </span>
                         {tx.type === "income" ? (
-                          <ArrowUpCircle className="h-4 w-4 text-success" />
+                          <ArrowUpCircle className="h-4 w-4 shrink-0 text-success" />
                         ) : (
-                          <ArrowDownCircle className="h-4 w-4 text-danger" />
+                          <ArrowDownCircle className="h-4 w-4 shrink-0 text-danger" />
                         )}
                       </div>
                     </li>
@@ -296,6 +243,7 @@ export default function Dashboard() {
             {/* Botão nova transação */}
             <Link
               to="/transactions"
+              state={{ openNew: true }}
               className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-center gap-1.5 text-sm font-medium text-brand-base hover:text-brand-dark"
             >
               <Plus className="h-4 w-4" />
@@ -304,7 +252,7 @@ export default function Dashboard() {
           </div>
 
           {/* Categorias */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Categorias
@@ -326,8 +274,8 @@ export default function Dashboard() {
                 Nenhuma categoria.
               </p>
             ) : (
-              <ul className="divide-y divide-gray-100">
-                {categories.map((cat, i) => {
+              <ul className="divide-y divide-gray-100 overflow-y-auto flex-1">
+                {categories.map((cat) => {
                   const stats = categoryStats.get(cat.id) ?? {
                     count: 0,
                     total: 0,
@@ -335,22 +283,20 @@ export default function Dashboard() {
                   return (
                     <li
                       key={cat.id}
-                      className="flex items-center justify-between py-3"
+                      className="grid grid-cols-3 items-center py-3 gap-2"
                     >
-                      <div className="flex items-center gap-2">
+                      <div>
                         <Tag
                           label={cat.name}
-                          color={getCategoryColor(i)}
+                          color={(cat.color as TagColor) ?? "gray"}
                         />
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-400">
-                          {stats.count} itens
-                        </p>
-                        <p className="text-xs font-semibold text-gray-700">
-                          {formatCurrency(stats.total)}
-                        </p>
-                      </div>
+                      <p className="text-xs text-gray-400 text-center">
+                        {stats.count} itens
+                      </p>
+                      <p className="text-xs font-semibold text-gray-700 text-right whitespace-nowrap">
+                        {formatCurrency(stats.total)}
+                      </p>
                     </li>
                   );
                 })}

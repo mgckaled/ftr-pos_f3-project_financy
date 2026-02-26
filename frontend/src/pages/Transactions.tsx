@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import { TransactionDialog } from "@/components/dialogs/TransactionDialog";
 import { Topbar } from "@/components/layout/Topbar";
@@ -52,9 +53,17 @@ const MONTHS = [
 
 export default function Transactions() {
   const { user, isAuthenticated } = useAuth();
+  const location = useLocation();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>();
+
+  useEffect(() => {
+    if (location.state?.openNew) {
+      setDialogOpen(true);
+      window.history.replaceState({}, "");
+    }
+  }, []);
 
   // Filtros
   const [search, setSearch] = useState("");
@@ -298,9 +307,8 @@ export default function Transactions() {
                           {tx.type === "income" ? "Entrada" : "Saída"}
                         </span>
                       </td>
-                      <td className={`px-5 py-3 text-right font-semibold ${tx.type === "income" ? "text-success" : "text-gray-800"}`}>
-                        {tx.type === "income" ? "+ " : "- "}
-                        {formatCurrency(tx.amount)}
+                      <td className={`px-5 py-3 text-right font-semibold whitespace-nowrap ${tx.type === "income" ? "text-success" : "text-gray-800"}`}>
+                        {`${tx.type === "income" ? "+" : "-"} ${formatCurrency(tx.amount)}`}
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex items-center justify-end gap-1">
