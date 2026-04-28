@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client/react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -45,6 +45,32 @@ function CategoryForm({ category, onClose }: CategoryFormProps) {
 
   const [selectedIcon, setSelectedIcon] = useState(category?.icon ?? DEFAULT_ICON)
   const [selectedColor, setSelectedColor] = useState(category?.color ?? DEFAULT_COLOR)
+
+  const iconRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const colorRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+  const handleIconKeyDown = (e: React.KeyboardEvent, currentIndex: number) => {
+    const cols = 8
+    let next = currentIndex
+    if (e.key === "ArrowRight") next = (currentIndex + 1) % CATEGORY_ICONS.length
+    else if (e.key === "ArrowLeft") next = (currentIndex - 1 + CATEGORY_ICONS.length) % CATEGORY_ICONS.length
+    else if (e.key === "ArrowDown") next = Math.min(currentIndex + cols, CATEGORY_ICONS.length - 1)
+    else if (e.key === "ArrowUp") next = Math.max(currentIndex - cols, 0)
+    else return
+    e.preventDefault()
+    setSelectedIcon(CATEGORY_ICONS[next].key)
+    iconRefs.current[next]?.focus()
+  }
+
+  const handleColorKeyDown = (e: React.KeyboardEvent, currentIndex: number) => {
+    let next = currentIndex
+    if (e.key === "ArrowRight") next = (currentIndex + 1) % CATEGORY_COLORS.length
+    else if (e.key === "ArrowLeft") next = (currentIndex - 1 + CATEGORY_COLORS.length) % CATEGORY_COLORS.length
+    else return
+    e.preventDefault()
+    setSelectedColor(CATEGORY_COLORS[next].key)
+    colorRefs.current[next]?.focus()
+  }
 
   const [createCategory] = useMutation(CREATE_CATEGORY, {
     refetchQueries: [GET_CATEGORIES],
@@ -111,7 +137,7 @@ function CategoryForm({ category, onClose }: CategoryFormProps) {
           {...register("name")}
         />
         {errors.name && (
-          <p className="text-xs text-danger">{errors.name.message}</p>
+          <p role="alert" aria-live="polite" className="text-xs text-danger">{errors.name.message}</p>
         )}
       </div>
 
@@ -128,15 +154,20 @@ function CategoryForm({ category, onClose }: CategoryFormProps) {
 
       {/* Ícone */}
       <div className="space-y-2">
-        <Label>Ícone</Label>
-        <div className="grid grid-cols-8 gap-1.5">
-          {CATEGORY_ICONS.map(({ icon: Icon, key }) => (
+        <Label id="icon-group-label">Ícone</Label>
+        <div role="radiogroup" aria-labelledby="icon-group-label" className="grid grid-cols-8 gap-1.5">
+          {CATEGORY_ICONS.map(({ icon: Icon, key }, index) => (
             <button
               key={key}
+              ref={(el) => { iconRefs.current[index] = el }}
               type="button"
-              onClick={() => setSelectedIcon(key)}
+              role="radio"
+              aria-checked={selectedIcon === key}
               aria-label={key}
-              className={`flex size-9 items-center justify-center rounded-md border transition-colors ${
+              tabIndex={selectedIcon === key ? 0 : -1}
+              onClick={() => setSelectedIcon(key)}
+              onKeyDown={(e) => handleIconKeyDown(e, index)}
+              className={`flex size-9 items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-base focus-visible:ring-offset-1 ${
                 selectedIcon === key
                   ? "border-brand-base bg-brand-base/10 text-brand-base"
                   : "border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -150,15 +181,20 @@ function CategoryForm({ category, onClose }: CategoryFormProps) {
 
       {/* Cor */}
       <div className="space-y-2">
-        <Label>Cor</Label>
-        <div className="flex gap-2">
-          {CATEGORY_COLORS.map(({ key, bg }) => (
+        <Label id="color-group-label">Cor</Label>
+        <div role="radiogroup" aria-labelledby="color-group-label" className="flex gap-2">
+          {CATEGORY_COLORS.map(({ key, bg }, index) => (
             <button
               key={key}
+              ref={(el) => { colorRefs.current[index] = el }}
               type="button"
-              onClick={() => setSelectedColor(key)}
+              role="radio"
+              aria-checked={selectedColor === key}
               aria-label={key}
-              className={`flex flex-1 items-center justify-center rounded-md border bg-white p-1 transition-colors ${
+              tabIndex={selectedColor === key ? 0 : -1}
+              onClick={() => setSelectedColor(key)}
+              onKeyDown={(e) => handleColorKeyDown(e, index)}
+              className={`flex flex-1 items-center justify-center rounded-md border bg-white p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-base focus-visible:ring-offset-1 ${
                 selectedColor === key
                   ? "border-gray-600 ring-1 ring-gray-400"
                   : "border-gray-200"

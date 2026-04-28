@@ -89,7 +89,7 @@ export default function Login() {
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-danger">{errors.email.message}</p>
+              <p role="alert" aria-live="polite" className="text-xs text-danger">{errors.email.message}</p>
             )}
           </div>
 
@@ -120,7 +120,7 @@ export default function Login() {
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-danger">{errors.password.message}</p>
+              <p role="alert" aria-live="polite" className="text-xs text-danger">{errors.password.message}</p>
             )}
           </div>
 
@@ -143,7 +143,7 @@ export default function Login() {
 
           {/* Erro do servidor */}
           {serverError && (
-            <p className="text-sm text-danger text-center">{serverError}</p>
+            <p role="alert" aria-live="assertive" className="text-sm text-danger text-center">{serverError}</p>
           )}
 
           {/* Botão Entrar */}

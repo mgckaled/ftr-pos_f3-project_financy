@@ -130,11 +130,13 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className='space-y-4 pt-2'>
           {/* Toggle Tipo */}
-          <div className='flex gap-2'>
+          <div role="radiogroup" aria-label="Tipo de transação" className='flex gap-2'>
             <button
               type='button'
+              role="radio"
+              aria-checked={selectedType === "expense"}
               onClick={() => setValue("type", "expense")}
-              className={`flex-1 flex items-center justify-center gap-2 rounded-lg border py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-2 rounded-lg border py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-base focus-visible:ring-offset-2 ${
                 selectedType === "expense"
                   ? "border-danger bg-red-50 text-danger"
                   : "border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -145,8 +147,10 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
             </button>
             <button
               type='button'
+              role="radio"
+              aria-checked={selectedType === "income"}
               onClick={() => setValue("type", "income")}
-              className={`flex-1 flex items-center justify-center gap-2 rounded-lg border py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-2 rounded-lg border py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-base focus-visible:ring-offset-2 ${
                 selectedType === "income"
                   ? "border-success bg-green-50 text-success"
                   : "border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -166,7 +170,7 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
               aria-invalid={!!errors.title}
               {...register("title")}
             />
-            {errors.title && <p className='text-xs text-danger'>{errors.title.message}</p>}
+            {errors.title && <p role="alert" aria-live="polite" className='text-xs text-danger'>{errors.title.message}</p>}
           </div>
 
           {/* Data + Valor */}
@@ -174,7 +178,7 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
             <div className='space-y-1.5'>
               <Label htmlFor='tx-date'>Data</Label>
               <Input id='tx-date' type='date' aria-invalid={!!errors.date} {...register("date")} />
-              {errors.date && <p className='text-xs text-danger'>{errors.date.message}</p>}
+              {errors.date && <p role="alert" aria-live="polite" className='text-xs text-danger'>{errors.date.message}</p>}
             </div>
             <div className='space-y-1.5'>
               <Label htmlFor='tx-amount'>Valor</Label>
@@ -191,7 +195,7 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
                   {...register("amount", { valueAsNumber: true })}
                 />
               </div>
-              {errors.amount && <p className='text-xs text-danger'>{errors.amount.message}</p>}
+              {errors.amount && <p role="alert" aria-live="polite" className='text-xs text-danger'>{errors.amount.message}</p>}
             </div>
           </div>
 
@@ -216,7 +220,7 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
                 </Select>
               )}
             />
-            {errors.categoryId && <p className='text-xs text-danger'>{errors.categoryId.message}</p>}
+            {errors.categoryId && <p role="alert" aria-live="polite" className='text-xs text-danger'>{errors.categoryId.message}</p>}
           </div>
 
           {/* Botão Salvar */}
