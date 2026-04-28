@@ -37,7 +37,7 @@ function SelectTrigger({
       className={cn(
         "flex w-full items-center justify-between gap-2 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-800 whitespace-nowrap outline-none transition-colors",
         "data-[placeholder]:text-gray-400",
-        "focus:border-brand-base",
+        "focus:border-brand-base focus-visible:ring-2 focus-visible:ring-brand-base focus-visible:ring-offset-2",
         "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50",
         "data-[size=default]:h-9 data-[size=sm]:h-8",
         "*:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2",
