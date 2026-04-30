@@ -25,6 +25,7 @@ import { GET_CATEGORIES } from "@/graphql/queries/categories";
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions";
 import type { Category, Transaction } from "@/graphql/types";
 import { useAuth } from "@/hooks/useAuth";
+import { useDebounce } from "@/hooks/useDebounce";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { getTagColor } from "@/lib/constants";
 
@@ -59,6 +60,7 @@ export default function Transactions() {
 
   // Filtros
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterMonth, setFilterMonth] = useState(String(new Date().getMonth() + 1));
@@ -96,7 +98,7 @@ export default function Transactions() {
   // Filtros aplicados
   const filtered = useMemo(() => {
     return transactions.filter((tx) => {
-      if (search && !tx.title.toLowerCase().includes(search.toLowerCase())) return false;
+      if (debouncedSearch && !tx.title.toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
       if (filterType !== "all" && tx.type !== filterType) return false;
       if (filterCategory !== "all" && tx.categoryId !== filterCategory) return false;
       const d = new Date(tx.createdAt);
@@ -104,7 +106,7 @@ export default function Transactions() {
       if (filterYear !== "all" && d.getFullYear() !== Number(filterYear)) return false;
       return true;
     });
-  }, [transactions, search, filterType, filterCategory, filterMonth, filterYear]);
+  }, [transactions, debouncedSearch, filterType, filterCategory, filterMonth, filterYear]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
