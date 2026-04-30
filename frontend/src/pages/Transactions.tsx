@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { TransactionDialog } from "@/components/dialogs/TransactionDialog";
 import { Topbar } from "@/components/layout/Topbar";
 import { IconButton } from "@/components/shared/IconButton";
+import { Skeleton } from "@/components/shared/Skeleton";
 import { Tag, type TagColor } from "@/components/shared/Tag";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -234,7 +235,40 @@ export default function Transactions() {
         {/* Tabela */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           {txLoading ? (
-            <p className="py-12 text-center text-sm text-gray-400">Carregando...</p>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="px-5 py-3 text-left">Descrição</th>
+                  <th className="px-5 py-3 text-left">Data</th>
+                  <th className="px-5 py-3 text-left">Categoria</th>
+                  <th className="px-5 py-3 text-left">Tipo</th>
+                  <th className="px-5 py-3 text-right">Valor</th>
+                  <th className="px-5 py-3 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="size-8 shrink-0 rounded-lg" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                    </td>
+                    <td className="px-5 py-3"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-5 py-3"><Skeleton className="h-5 w-20 rounded-full" /></td>
+                    <td className="px-5 py-3"><Skeleton className="h-5 w-16 rounded-full" /></td>
+                    <td className="px-5 py-3 text-right"><Skeleton className="h-4 w-20 ml-auto" /></td>
+                    <td className="px-5 py-3">
+                      <div className="flex justify-end gap-1">
+                        <Skeleton className="size-7 rounded" />
+                        <Skeleton className="size-7 rounded" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : paginated.length === 0 ? (
             <p className="py-12 text-center text-sm text-gray-400">
               Nenhuma transação encontrada.

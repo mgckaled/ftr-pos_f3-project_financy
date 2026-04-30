@@ -5,6 +5,7 @@ import { toast } from "sonner"
 
 import { useAuth } from "@/hooks/useAuth"
 import { Topbar } from "@/components/layout/Topbar"
+import { Skeleton } from "@/components/shared/Skeleton"
 import { Tag, type TagColor } from "@/components/shared/Tag"
 import { IconButton } from "@/components/shared/IconButton"
 import { CategoryDialog } from "@/components/dialogs/CategoryDialog"
@@ -176,7 +177,26 @@ export default function Categories() {
 
         {/* Grid de categorias */}
         {loading ? (
-          <p className="py-12 text-center text-sm text-gray-400">Carregando...</p>
+          <div className="grid grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col min-h-52 space-y-3">
+                <div className="flex items-start justify-between">
+                  <Skeleton className="size-10 rounded-xl" />
+                  <div className="flex gap-1">
+                    <Skeleton className="size-7 rounded" />
+                    <Skeleton className="size-7 rounded" />
+                  </div>
+                </div>
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-3/4" />
+                <div className="flex items-center justify-between mt-auto pt-2">
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-3 w-10" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : categories.length === 0 ? (
           <p className="py-12 text-center text-sm text-gray-400">
             Nenhuma categoria encontrada.

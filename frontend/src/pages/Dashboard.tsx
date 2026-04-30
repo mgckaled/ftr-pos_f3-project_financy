@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 
 import { CATEGORY_COLOR_BG, CATEGORY_ICON_MAP } from "@/components/dialogs/category-constants";
 import { Topbar } from "@/components/layout/Topbar";
+import { Skeleton } from "@/components/shared/Skeleton";
 import { Tag, type TagColor } from "@/components/shared/Tag";
 import { GET_CATEGORIES } from "@/graphql/queries/categories";
 import { GET_TRANSACTIONS } from "@/graphql/queries/transactions";
@@ -116,9 +117,9 @@ export default function Dashboard() {
                 Saldo Total
               </span>
             </div>
-            <p className="text-2xl font-bold text-gray-800">
-              {loading ? "—" : formatCurrency(balance)}
-            </p>
+            {loading ? <Skeleton className="h-8 w-36 mt-1" /> : (
+              <p className="text-2xl font-bold text-gray-800">{formatCurrency(balance)}</p>
+            )}
           </div>
 
           {/* Receitas do Mês */}
@@ -131,9 +132,9 @@ export default function Dashboard() {
                 Receitas do Mês
               </span>
             </div>
-            <p className="text-2xl font-bold text-gray-800">
-              {loading ? "—" : formatCurrency(monthIncome)}
-            </p>
+            {loading ? <Skeleton className="h-8 w-36 mt-1" /> : (
+              <p className="text-2xl font-bold text-gray-800">{formatCurrency(monthIncome)}</p>
+            )}
           </div>
 
           {/* Despesas do Mês */}
@@ -146,9 +147,9 @@ export default function Dashboard() {
                 Despesas do Mês
               </span>
             </div>
-            <p className="text-2xl font-bold text-gray-800">
-              {loading ? "—" : formatCurrency(monthExpense)}
-            </p>
+            {loading ? <Skeleton className="h-8 w-36 mt-1" /> : (
+              <p className="text-2xl font-bold text-gray-800">{formatCurrency(monthExpense)}</p>
+            )}
           </div>
         </div>
 
@@ -169,9 +170,19 @@ export default function Dashboard() {
             </div>
 
             {loading ? (
-              <p className="text-sm text-gray-400 py-6 text-center">
-                Carregando...
-              </p>
+              <ul className="flex-1 divide-y divide-gray-100">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <li key={i} className="flex items-center gap-4 py-3">
+                    <Skeleton className="size-9 shrink-0 rounded-xl" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-32" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-4 w-20" />
+                  </li>
+                ))}
+              </ul>
             ) : recentTransactions.length === 0 ? (
               <p className="text-sm text-gray-400 py-6 text-center">
                 Nenhuma transação encontrada.
@@ -259,9 +270,15 @@ export default function Dashboard() {
             </div>
 
             {loading ? (
-              <p className="text-sm text-gray-400 py-6 text-center">
-                Carregando...
-              </p>
+              <ul className="divide-y divide-gray-100 overflow-y-auto flex-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <li key={i} className="grid grid-cols-3 items-center py-3 gap-2">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-3 w-10 mx-auto" />
+                    <Skeleton className="h-3 w-14 ml-auto" />
+                  </li>
+                ))}
+              </ul>
             ) : categories.length === 0 ? (
               <p className="text-sm text-gray-400 py-6 text-center">
                 Nenhuma categoria.
