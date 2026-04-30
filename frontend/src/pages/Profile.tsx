@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { User, Mail, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 import { useAuth } from "@/hooks/useAuth";
 import { Topbar } from "@/components/layout/Topbar";
@@ -48,7 +49,8 @@ export default function Profile() {
 
   const onSubmit = async (data: ProfileFormData) => {
     updateUser({ name: data.name });
-    reset({ name: data.name }); // atualiza baseline → isDirty = false
+    reset({ name: data.name });
+    toast.success("Perfil atualizado com sucesso.");
   };
 
   function handleLogout() {

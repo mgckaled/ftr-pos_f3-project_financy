@@ -2,6 +2,7 @@ import { useMutation } from "@apollo/client/react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -119,9 +120,10 @@ function CategoryForm({ category, onClose }: CategoryFormProps) {
           },
         })
       }
+      toast.success(isEditing ? "Categoria atualizada com sucesso." : "Categoria criada com sucesso.")
       onClose()
-    } catch (err) {
-      console.error(err)
+    } catch {
+      toast.error("Erro ao salvar categoria. Tente novamente.")
     }
   }
 

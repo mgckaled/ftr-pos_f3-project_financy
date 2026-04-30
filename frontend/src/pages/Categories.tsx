@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react"
 import { useQuery, useMutation } from "@apollo/client/react"
 import { Plus, Pencil, Trash2, Tag as TagIcon, ArrowUpDown, AlertTriangle } from "lucide-react"
+import { toast } from "sonner"
 
 import { useAuth } from "@/hooks/useAuth"
 import { Topbar } from "@/components/layout/Topbar"
@@ -89,8 +90,9 @@ export default function Categories() {
     if (!confirmDelete) return
     try {
       await deleteCategory({ variables: { id: confirmDelete.id } })
-    } catch (err) {
-      console.error(err)
+      toast.success("Categoria excluída com sucesso.")
+    } catch {
+      toast.error("Erro ao excluir categoria. Tente novamente.")
     } finally {
       setConfirmDelete(null)
     }

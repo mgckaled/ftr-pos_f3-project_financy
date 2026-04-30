@@ -2,6 +2,7 @@ import { useMutation } from "@apollo/client/react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
 import { Controller, useForm, useWatch } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -114,9 +115,10 @@ export function TransactionDialog({ open, onOpenChange, transaction, categories 
           },
         })
       }
+      toast.success(isEditing ? "Transação atualizada com sucesso." : "Transação criada com sucesso.")
       onOpenChange(false)
-    } catch (err) {
-      console.error(err)
+    } catch {
+      toast.error("Erro ao salvar transação. Tente novamente.")
     }
   }
 

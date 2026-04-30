@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { toast } from "sonner";
 
 import { TransactionDialog } from "@/components/dialogs/TransactionDialog";
 import { Topbar } from "@/components/layout/Topbar";
@@ -121,8 +122,9 @@ export default function Transactions() {
     if (!confirm("Deseja excluir esta transação?")) return;
     try {
       await deleteTransaction({ variables: { id } });
-    } catch (err) {
-      console.error(err);
+      toast.success("Transação excluída com sucesso.");
+    } catch {
+      toast.error("Erro ao excluir transação. Tente novamente.");
     }
   }
 
