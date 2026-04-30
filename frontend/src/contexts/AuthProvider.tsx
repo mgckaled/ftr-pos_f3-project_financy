@@ -1,6 +1,12 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { apolloClient } from "@/lib/apollo";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { AuthContext, type AuthContextValue, type User } from "./auth-context";
+
+function SessionWatcher() {
+  useSessionTimeout();
+  return null;
+}
 
 function loadFromStorage(): { token: string | null; user: User | null } {
   try {
@@ -47,5 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [user, token, login, logout, updateUser]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      <SessionWatcher />
+      {children}
+    </AuthContext.Provider>
+  );
 }
