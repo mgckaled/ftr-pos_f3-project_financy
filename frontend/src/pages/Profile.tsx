@@ -62,7 +62,7 @@ export default function Profile() {
     <div className="min-h-screen bg-gray-100">
       <Topbar userName={user?.name} />
 
-      <main className="mx-auto max-w-md px-4 py-12">
+      <main id="main-content" className="mx-auto max-w-md px-4 py-12">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           {/* Avatar + info */}
           <div className="flex flex-col items-center px-8 pt-8 pb-6">

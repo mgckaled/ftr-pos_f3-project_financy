@@ -104,7 +104,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-100">
       <Topbar userName={user?.name} />
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
+      <main id="main-content" className="mx-auto max-w-5xl px-6 py-8">
         {/* ── Cards de resumo ── */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           {/* Saldo Total */}

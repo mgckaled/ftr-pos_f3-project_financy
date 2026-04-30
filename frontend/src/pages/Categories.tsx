@@ -103,7 +103,7 @@ export default function Categories() {
     <div className="min-h-screen bg-gray-100">
       <Topbar userName={user?.name} />
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main id="main-content" className="mx-auto max-w-6xl px-6 py-8">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between mb-6">
           <div>
